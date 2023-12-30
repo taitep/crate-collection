@@ -5,7 +5,8 @@ use std::env;
 use std::path::PathBuf;
 
 use pancurses::{
-    endwin, has_colors, init_pair, initscr, noecho, start_color, Input, COLOR_BLACK, COLOR_WHITE,
+    endwin, has_colors, init_pair, initscr, noecho, resize_term, start_color, Input, COLOR_BLACK,
+    COLOR_WHITE,
 };
 
 fn main() -> anyhow::Result<()> {
@@ -103,6 +104,18 @@ fn main() -> anyhow::Result<()> {
                         );
                     }
                 }
+            }
+            Some(Input::KeyResize) => {
+                resize_term(0, 0);
+                file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                file_navigator::draw_menu_bars(
+                    &window,
+                    1,
+                    match path.to_str() {
+                        Some(str) => str,
+                        None => bail!("Path is not valid unicode."),
+                    },
+                );
             }
             _ => (),
         }
