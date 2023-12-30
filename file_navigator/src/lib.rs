@@ -1,8 +1,9 @@
 use pancurses::{Window, COLOR_PAIR};
 
+use anyhow;
+
 use std::{
-    ffi::OsStr,
-    fs::{self, DirEntry},
+    fs::{self, DirEntry, FileType},
     path::PathBuf,
 };
 
@@ -13,14 +14,28 @@ pub fn draw_menu_bars(window: &Window, color_pair: u32, path: &str) {
     window.addstr(path);
 }
 
-pub fn draw_file_list(window: &Window, files: Vec<&str>) {
+pub fn draw_file_list(window: &Window, files: Vec<DirEntry>, scroll: u32) -> anyhow::Result<()> {
     window.attrset(COLOR_PAIR(0));
     window.mv(1, 0);
 
     for file in files {
-        window.addstr(file);
+        window.addstr(format!(
+            "{}{}",
+            match file.file_name().to_str() {
+                Some(name) => name,
+                None => {
+                    continue;
+                }
+            },
+            match file.file_type()?.is_dir() {
+                true => "/",
+                false => "",
+            }
+        ));
         window.addch('\n');
     }
+
+    Ok(())
 }
 
 pub fn get_files(path: PathBuf) -> Result<Vec<DirEntry>, std::io::Error> {

@@ -30,6 +30,10 @@ fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
         },
     );
 
+    let files = file_navigator::get_files(path)?;
+
+    file_navigator::draw_file_list(&window, files, 0)?;
+
     window.getch();
 
     Ok(())
