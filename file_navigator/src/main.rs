@@ -1,11 +1,11 @@
 use anyhow::{self, bail};
 use file_navigator;
+use scopeguard;
 use std::env;
 use std::path::PathBuf;
 
 use pancurses::{
-    endwin, has_colors, init_pair, initscr, noecho, start_color, Input, Window, COLOR_BLACK,
-    COLOR_WHITE,
+    endwin, has_colors, init_pair, initscr, noecho, start_color, Input, COLOR_BLACK, COLOR_WHITE,
 };
 
 fn main() -> anyhow::Result<()> {
@@ -22,15 +22,14 @@ fn main() -> anyhow::Result<()> {
     }
 
     let window = initscr();
+
+    let _guard = scopeguard::guard((), |()| {
+        endwin();
+    });
+
     window.nodelay(false);
     window.keypad(true);
     noecho();
-    let res = wrapped_main(window, path);
-    endwin();
-    res
-}
-
-fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
     if !has_colors() {
         bail!("Terminal does not support color.")
     }
@@ -62,7 +61,7 @@ fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
                 if selection > 0 {
                     selection -= 1;
 
-                    if selection - scroll < 5 && !selection < 5 {
+                    if selection - scroll < 5 && selection >= 5 {
                         scroll -= 1;
                     }
 
@@ -73,7 +72,7 @@ fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
                 if selection < files.len() - 1 {
                     selection += 1;
 
-                    if window.get_max_y() - (selection as i32 - scroll as i32 + 2) < 5
+                    if window.get_max_y() - (selection as i32 - scroll as i32 + 3) < 5
                         && files.len() - selection >= 5
                     {
                         scroll += 1;
