@@ -81,7 +81,7 @@ fn main() -> anyhow::Result<()> {
                     }
                 }
             }
-            Some(Input::Character('\n')) => {
+            Some(Input::Character('\n') | Input::KeyRight) => {
                 if files.len() > 0 {
                     if files[selection].file_type()?.is_dir() {
                         path = path.join(files[selection].file_name());
