@@ -1,5 +1,5 @@
 Part of [taitep/crate-collection](https://github.com/taitep/crate-collection).
 
-Example for `pancurses`.
+Example for `pancurses` and `anyhow`.
 
 Licensed under the MIT license, please see repository for full license text.
