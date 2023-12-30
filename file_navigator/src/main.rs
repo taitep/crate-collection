@@ -3,12 +3,15 @@ use file_navigator;
 use std::path::PathBuf;
 
 use pancurses::{
-    endwin, has_colors, init_pair, initscr, start_color, Window, COLOR_BLACK, COLOR_WHITE,
+    endwin, has_colors, init_pair, initscr, noecho, start_color, Input, Window, COLOR_BLACK,
+    COLOR_WHITE,
 };
 
 fn main() -> anyhow::Result<()> {
     let window = initscr();
     window.nodelay(false);
+    window.keypad(true);
+    noecho();
     let res = wrapped_main(window, PathBuf::new().join("."));
     endwin();
     res
@@ -32,9 +35,28 @@ fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
 
     let files = file_navigator::get_files(path)?;
 
-    file_navigator::draw_file_list(&window, files, 0)?;
+    let mut scroll = 0;
 
-    window.getch();
+    file_navigator::draw_file_list(&window, &files, scroll)?;
+
+    loop {
+        match window.getch() {
+            Some(Input::Character('q')) => {
+                break;
+            }
+            Some(Input::KeyUp) => {
+                if scroll > 0 {
+                    scroll -= 1;
+                }
+            }
+            Some(Input::KeyDown) => {
+                if scroll < files.len() {
+                    scroll += 1;
+                }
+            }
+            _ => (),
+        }
+    }
 
     Ok(())
 }
