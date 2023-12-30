@@ -14,11 +14,17 @@ pub fn draw_menu_bars(window: &Window, color_pair: u32, path: &str) {
     window.addstr(path);
 }
 
-pub fn draw_file_list(window: &Window, files: Vec<DirEntry>, scroll: u32) -> anyhow::Result<()> {
+pub fn draw_file_list(window: &Window, files: Vec<DirEntry>, scroll: usize) -> anyhow::Result<()> {
     window.attrset(COLOR_PAIR(0));
     window.mv(1, 0);
+    if scroll > 0 {
+        window.addstr("...");
+    }
+    window.mv(2, 0);
 
-    for file in files {
+    let max_files_shown = window.get_max_y() - 3;
+
+    for file in files.iter().skip(scroll).take(max_files_shown as usize) {
         window.addstr(format!(
             "{}{}",
             match file.file_name().to_str() {
@@ -34,6 +40,8 @@ pub fn draw_file_list(window: &Window, files: Vec<DirEntry>, scroll: u32) -> any
         ));
         window.addch('\n');
     }
+
+    window.refresh();
 
     Ok(())
 }
