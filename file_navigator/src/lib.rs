@@ -3,7 +3,7 @@ use pancurses::{Window, COLOR_PAIR};
 use anyhow;
 
 use std::{
-    fs::{self, DirEntry, FileType},
+    fs::{self, DirEntry},
     path::PathBuf,
 };
 
