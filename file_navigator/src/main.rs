@@ -1,5 +1,6 @@
 use anyhow::{self, bail};
 use file_navigator;
+use std::env;
 use std::path::PathBuf;
 
 use pancurses::{
@@ -8,11 +9,23 @@ use pancurses::{
 };
 
 fn main() -> anyhow::Result<()> {
+    let args: Vec<String> = env::args().collect();
+    if args.len() > 2 {
+        bail!("Too many arguments.")
+    }
+
+    let path: PathBuf;
+    if args.len() > 1 {
+        path = PathBuf::from(args[1].clone());
+    } else {
+        path = PathBuf::new().join(".");
+    }
+
     let window = initscr();
     window.nodelay(false);
     window.keypad(true);
     noecho();
-    let res = wrapped_main(window, PathBuf::new().join("."));
+    let res = wrapped_main(window, path);
     endwin();
     res
 }
