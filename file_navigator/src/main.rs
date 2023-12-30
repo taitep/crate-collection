@@ -47,11 +47,13 @@ fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
             Some(Input::KeyUp) => {
                 if scroll > 0 {
                     scroll -= 1;
+                    file_navigator::draw_file_list(&window, &files, scroll)?;
                 }
             }
             Some(Input::KeyDown) => {
                 if scroll < files.len() {
                     scroll += 1;
+                    file_navigator::draw_file_list(&window, &files, scroll)?;
                 }
             }
             _ => (),
