@@ -106,10 +106,14 @@ fn main() -> anyhow::Result<()> {
                 }
             }
             Some(Input::KeyBackspace | Input::KeyLeft) => {
+                let old_path = path.clone();
                 path = path.join("..").canonicalize()?;
                 files = file_navigator::get_files(&path)?;
 
-                selection = 0;
+                selection = match files.iter().position(|entry| entry.path() == old_path) {
+                    Some(position) => position,
+                    None => 0,
+                };
                 scroll = 0;
 
                 file_navigator::draw_menu_bar(
