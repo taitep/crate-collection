@@ -19,6 +19,8 @@ fn main() -> anyhow::Result<()> {
         path = PathBuf::from(args[1].clone());
     }
 
+    path = path.canonicalize()?;
+
     let window = initscr();
 
     let _guard = scopeguard::guard((), |()| {
@@ -84,7 +86,7 @@ fn main() -> anyhow::Result<()> {
             Some(Input::Character('\n') | Input::KeyRight) => {
                 if files.len() > 0 {
                     if files[selection].file_type()?.is_dir() {
-                        path = path.join(files[selection].file_name());
+                        path = path.join(files[selection].file_name()).canonicalize()?;
                         files = file_navigator::get_files(&path)?;
 
                         selection = 0;
