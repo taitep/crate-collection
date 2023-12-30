@@ -14,7 +14,12 @@ pub fn draw_menu_bars(window: &Window, color_pair: u32, path: &str) {
     window.addstr(path);
 }
 
-pub fn draw_file_list(window: &Window, files: &Vec<DirEntry>, scroll: usize) -> anyhow::Result<()> {
+pub fn draw_file_list(
+    window: &Window,
+    files: &Vec<DirEntry>,
+    selection: usize,
+    scroll: usize,
+) -> anyhow::Result<()> {
     window.attrset(COLOR_PAIR(0));
     window.mv(1, 0);
     if scroll > 0 {
@@ -42,6 +47,13 @@ pub fn draw_file_list(window: &Window, files: &Vec<DirEntry>, scroll: usize) -> 
             }
         ));
         window.addch('\n');
+    }
+
+    let screen_selection = selection - scroll + 2;
+    window.mv(screen_selection as i32, 0);
+
+    if files.len() > scroll + max_files_shown as usize {
+        window.addstr("...\n");
     }
 
     window.refresh();

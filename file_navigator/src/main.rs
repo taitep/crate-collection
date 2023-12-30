@@ -35,9 +35,10 @@ fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
 
     let files = file_navigator::get_files(path)?;
 
+    let mut selection = 0;
     let mut scroll = 0;
 
-    file_navigator::draw_file_list(&window, &files, scroll)?;
+    file_navigator::draw_file_list(&window, &files, selection, scroll)?;
 
     loop {
         match window.getch() {
@@ -45,15 +46,27 @@ fn wrapped_main(window: Window, path: PathBuf) -> anyhow::Result<()> {
                 break;
             }
             Some(Input::KeyUp) => {
-                if scroll > 0 {
-                    scroll -= 1;
-                    file_navigator::draw_file_list(&window, &files, scroll)?;
+                if selection > 0 {
+                    selection -= 1;
+
+                    if selection - scroll < 5 && !selection < 5 {
+                        scroll -= 1;
+                    }
+
+                    file_navigator::draw_file_list(&window, &files, selection, scroll)?;
                 }
             }
             Some(Input::KeyDown) => {
-                if scroll < files.len() {
-                    scroll += 1;
-                    file_navigator::draw_file_list(&window, &files, scroll)?;
+                if selection < files.len() - 1 {
+                    selection += 1;
+
+                    if window.get_max_y() - (selection as i32 - scroll as i32 + 2) < 5
+                        && files.len() - selection >= 5
+                    {
+                        scroll += 1;
+                    }
+
+                    file_navigator::draw_file_list(&window, &files, selection, scroll)?;
                 }
             }
             _ => (),
