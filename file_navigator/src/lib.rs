@@ -7,7 +7,7 @@ use std::{
     path::PathBuf,
 };
 
-pub fn draw_menu_bars(window: &Window, color_pair: u32, path: &str) {
+pub fn draw_menu_bar(window: &Window, color_pair: u32, path: &str) {
     window.chgat(-1, COLOR_PAIR(color_pair), color_pair.try_into().unwrap());
     window.attrset(COLOR_PAIR(color_pair));
     window.mv(0, 0);

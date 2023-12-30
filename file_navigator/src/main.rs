@@ -37,7 +37,7 @@ fn main() -> anyhow::Result<()> {
     start_color();
     init_pair(1, COLOR_BLACK, COLOR_WHITE);
 
-    file_navigator::draw_menu_bars(
+    file_navigator::draw_menu_bar(
         &window,
         1,
         match path.to_str() {
@@ -93,7 +93,7 @@ fn main() -> anyhow::Result<()> {
                         selection = 0;
                         scroll = 0;
 
-                        file_navigator::draw_menu_bars(
+                        file_navigator::draw_menu_bar(
                             &window,
                             1,
                             match path.to_str() {
@@ -112,7 +112,7 @@ fn main() -> anyhow::Result<()> {
                 selection = 0;
                 scroll = 0;
 
-                file_navigator::draw_menu_bars(
+                file_navigator::draw_menu_bar(
                     &window,
                     1,
                     match path.to_str() {
@@ -125,7 +125,7 @@ fn main() -> anyhow::Result<()> {
             Some(Input::KeyResize) => {
                 resize_term(0, 0);
                 window.mv(0, 0);
-                file_navigator::draw_menu_bars(
+                file_navigator::draw_menu_bar(
                     &window,
                     1,
                     match path.to_str() {
