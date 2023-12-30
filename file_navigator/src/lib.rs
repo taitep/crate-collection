@@ -49,12 +49,14 @@ pub fn draw_file_list(
         window.addch('\n');
     }
 
-    let screen_selection = selection - scroll + 2;
-    window.mv(screen_selection as i32, 0);
-
     if files.len() > scroll + max_files_shown as usize {
         window.addstr("...\n");
+    } else {
+        window.addstr("   \n");
     }
+
+    let screen_selection = selection - scroll + 2;
+    window.mv(screen_selection as i32, 0);
 
     window.refresh();
 
