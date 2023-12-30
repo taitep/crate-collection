@@ -63,9 +63,9 @@ pub fn draw_file_list(
     Ok(())
 }
 
-pub fn get_files(path: PathBuf) -> Result<Vec<DirEntry>, std::io::Error> {
+pub fn get_files(path: &PathBuf) -> Result<Vec<DirEntry>, std::io::Error> {
     let mut entries: Vec<DirEntry> = vec![];
-    for entry in fs::read_dir(path).unwrap() {
+    for entry in fs::read_dir(path)? {
         match entry {
             Ok(entry) => entries.insert(entries.len(), entry),
             Err(e) => {

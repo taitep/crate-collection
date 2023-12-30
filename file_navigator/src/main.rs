@@ -14,11 +14,9 @@ fn main() -> anyhow::Result<()> {
         bail!("Too many arguments.")
     }
 
-    let path: PathBuf;
+    let mut path: PathBuf = PathBuf::new().join(".");
     if args.len() > 1 {
         path = PathBuf::from(args[1].clone());
-    } else {
-        path = PathBuf::new().join(".");
     }
 
     let window = initscr();
@@ -45,7 +43,7 @@ fn main() -> anyhow::Result<()> {
         },
     );
 
-    let files = file_navigator::get_files(path)?;
+    let mut files = file_navigator::get_files(&path)?;
 
     let mut selection = 0;
     let mut scroll = 0;
@@ -78,6 +76,19 @@ fn main() -> anyhow::Result<()> {
                         {
                             scroll += 1;
                         }
+
+                        file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                    }
+                }
+            }
+            Some(Input::Character('\n')) => {
+                if files.len() > 0 {
+                    if files[selection].file_type()?.is_dir() {
+                        path = path.join(files[selection].file_name());
+                        files = file_navigator::get_files(&path)?;
+
+                        selection = 0;
+                        scroll = 0;
 
                         file_navigator::draw_file_list(&window, &files, selection, scroll)?;
                     }
