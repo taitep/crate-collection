@@ -18,9 +18,12 @@ pub fn draw_file_list(window: &Window, files: &Vec<DirEntry>, scroll: usize) -> 
     window.attrset(COLOR_PAIR(0));
     window.mv(1, 0);
     if scroll > 0 {
-        window.addstr("...");
+        window.addstr("...\n");
+    } else {
+        window.addstr("   \n");
     }
-    window.mv(2, 0);
+
+    window.clrtobot();
 
     let max_files_shown = window.get_max_y() - 3;
 
