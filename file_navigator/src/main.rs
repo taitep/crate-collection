@@ -105,6 +105,23 @@ fn main() -> anyhow::Result<()> {
                     }
                 }
             }
+            Some(Input::KeyBackspace | Input::KeyLeft) => {
+                path = path.join("..").canonicalize()?;
+                files = file_navigator::get_files(&path)?;
+
+                selection = 0;
+                scroll = 0;
+
+                file_navigator::draw_menu_bars(
+                    &window,
+                    1,
+                    match path.to_str() {
+                        Some(str) => str,
+                        None => bail!("Path is not valid unicode."),
+                    },
+                );
+                file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+            }
             Some(Input::KeyResize) => {
                 resize_term(0, 0);
                 window.mv(0, 0);
