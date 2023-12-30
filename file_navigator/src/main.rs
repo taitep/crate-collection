@@ -93,7 +93,6 @@ fn main() -> anyhow::Result<()> {
                         selection = 0;
                         scroll = 0;
 
-                        file_navigator::draw_file_list(&window, &files, selection, scroll)?;
                         file_navigator::draw_menu_bars(
                             &window,
                             1,
@@ -102,12 +101,13 @@ fn main() -> anyhow::Result<()> {
                                 None => bail!("Path is not valid unicode."),
                             },
                         );
+                        file_navigator::draw_file_list(&window, &files, selection, scroll)?;
                     }
                 }
             }
             Some(Input::KeyResize) => {
                 resize_term(0, 0);
-                file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                window.mv(0, 0);
                 file_navigator::draw_menu_bars(
                     &window,
                     1,
@@ -116,6 +116,7 @@ fn main() -> anyhow::Result<()> {
                         None => bail!("Path is not valid unicode."),
                     },
                 );
+                file_navigator::draw_file_list(&window, &files, selection, scroll)?;
             }
             _ => (),
         }
