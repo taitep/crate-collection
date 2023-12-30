@@ -41,7 +41,7 @@ fn main() -> anyhow::Result<()> {
         1,
         match path.to_str() {
             Some(str) => str,
-            None => bail!("Invalid path"),
+            None => bail!("Path is not valid unicode."),
         },
     );
 
@@ -93,6 +93,14 @@ fn main() -> anyhow::Result<()> {
                         scroll = 0;
 
                         file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                        file_navigator::draw_menu_bars(
+                            &window,
+                            1,
+                            match path.to_str() {
+                                Some(str) => str,
+                                None => bail!("Path is not valid unicode."),
+                            },
+                        );
                     }
                 }
             }
