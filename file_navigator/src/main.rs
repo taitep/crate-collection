@@ -58,7 +58,7 @@ fn main() -> anyhow::Result<()> {
                 break;
             }
             Some(Input::KeyUp) => {
-                if selection > 0 {
+                if selection > 0 && files.len() > 0 {
                     selection -= 1;
 
                     if selection - scroll < 5 && selection >= 5 {
@@ -69,16 +69,18 @@ fn main() -> anyhow::Result<()> {
                 }
             }
             Some(Input::KeyDown) => {
-                if selection < files.len() - 1 {
-                    selection += 1;
+                if files.len() > 0 {
+                    if selection < files.len() - 1 {
+                        selection += 1;
 
-                    if window.get_max_y() - (selection as i32 - scroll as i32 + 3) < 5
-                        && files.len() - selection >= 5
-                    {
-                        scroll += 1;
+                        if window.get_max_y() - (selection as i32 - scroll as i32 + 3) < 5
+                            && files.len() - selection >= 5
+                        {
+                            scroll += 1;
+                        }
+
+                        file_navigator::draw_file_list(&window, &files, selection, scroll)?;
                     }
-
-                    file_navigator::draw_file_list(&window, &files, selection, scroll)?;
                 }
             }
             _ => (),
