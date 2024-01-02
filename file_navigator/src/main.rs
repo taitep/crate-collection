@@ -3,6 +3,7 @@ use anyhow::{bail, Result};
 use std::{
     env,
     io::{stdin, stdout},
+    os::unix::ffi::OsStrExt,
     path::PathBuf,
 };
 
@@ -36,10 +37,7 @@ fn main() -> Result<()> {
 
     file_navigator::draw_menu_bar(
         &mut screen,
-        match path.to_str() {
-            Some(str) => str,
-            None => bail!("Path is not valid unicode."),
-        },
+        std::str::from_utf8(path.as_os_str().as_bytes())?,
     )?;
 
     let mut files = file_navigator::get_files(&path)?;
@@ -92,10 +90,7 @@ fn main() -> Result<()> {
 
                         file_navigator::draw_menu_bar(
                             &mut screen,
-                            match path.to_str() {
-                                Some(str) => str,
-                                None => bail!("Path is not valid unicode."),
-                            },
+                            std::str::from_utf8(path.as_os_str().as_bytes())?,
                         )?;
                         file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
                     }
@@ -114,10 +109,7 @@ fn main() -> Result<()> {
 
                 file_navigator::draw_menu_bar(
                     &mut screen,
-                    match path.to_str() {
-                        Some(str) => str,
-                        None => bail!("Path is not valid unicode."),
-                    },
+                    std::str::from_utf8(path.as_os_str().as_bytes())?,
                 )?;
                 file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
             }
@@ -126,10 +118,7 @@ fn main() -> Result<()> {
                     (w, h) = terminal_size()?;
                     file_navigator::draw_menu_bar(
                         &mut screen,
-                        match path.to_str() {
-                            Some(str) => str,
-                            None => bail!("Path is not valid unicode."),
-                        },
+                        std::str::from_utf8(path.as_os_str().as_bytes())?,
                     )?;
                     file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
                 }
