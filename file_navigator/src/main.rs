@@ -1,17 +1,20 @@
 use anyhow::{bail, Result};
-use file_navigator;
-use std::path::PathBuf;
+
 use std::{
     env,
     io::{stdin, stdout},
+    path::PathBuf,
 };
-use termion::input::TermRead;
-use termion::raw::IntoRawMode;
-use termion::screen::IntoAlternateScreen;
+
 use termion::{
     event::{Event, Key},
+    input::TermRead,
+    raw::IntoRawMode,
+    screen::IntoAlternateScreen,
     terminal_size,
 };
+
+use file_navigator;
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
