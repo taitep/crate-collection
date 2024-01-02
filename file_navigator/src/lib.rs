@@ -1,4 +1,5 @@
 use anyhow::Result;
+
 use termion::{
     clear,
     color::{self, Bg, Fg},
