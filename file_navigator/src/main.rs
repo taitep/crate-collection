@@ -1,12 +1,16 @@
 use anyhow::{self, bail};
 use file_navigator;
-use scopeguard;
-use std::env;
 use std::path::PathBuf;
-
-use pancurses::{
-    endwin, has_colors, init_pair, initscr, noecho, resize_term, start_color, Input, COLOR_BLACK,
-    COLOR_WHITE,
+use std::{
+    env,
+    io::{stdin, stdout},
+};
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
+use termion::screen::IntoAlternateScreen;
+use termion::{
+    event::{Event, Key},
+    terminal_size,
 };
 
 fn main() -> anyhow::Result<()> {
@@ -22,43 +26,33 @@ fn main() -> anyhow::Result<()> {
 
     path = path.canonicalize()?;
 
-    let window = initscr();
+    let mut screen = stdout().into_raw_mode()?.into_alternate_screen()?;
+    let stdin = stdin();
 
-    let _guard = scopeguard::guard((), |()| {
-        endwin();
-    });
-
-    window.nodelay(false);
-    window.keypad(true);
-    noecho();
-    if !has_colors() {
-        bail!("Terminal does not support color.")
-    }
-    start_color();
-    init_pair(1, COLOR_BLACK, COLOR_WHITE);
+    let (mut w, mut h) = terminal_size()?;
 
     file_navigator::draw_menu_bar(
-        &window,
-        1,
+        &mut screen,
         match path.to_str() {
             Some(str) => str,
             None => bail!("Path is not valid unicode."),
         },
-    );
+    )?;
 
     let mut files = file_navigator::get_files(&path)?;
 
     let mut selection = 0;
     let mut scroll = 0;
 
-    file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+    file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
 
+    let mut events = stdin.events();
     loop {
-        match window.getch() {
-            Some(Input::Character('q')) => {
+        match events.next().transpose()? {
+            Some(Event::Key(Key::Char('q') | Key::Esc)) => {
                 break;
             }
-            Some(Input::KeyUp) => {
+            Some(Event::Key(Key::Up)) => {
                 if selection > 0 && files.len() > 0 {
                     selection -= 1;
 
@@ -66,25 +60,25 @@ fn main() -> anyhow::Result<()> {
                         scroll -= 1;
                     }
 
-                    file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                    file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
                 }
             }
-            Some(Input::KeyDown) => {
+            Some(Event::Key(Key::Down)) => {
                 if files.len() > 0 {
                     if selection < files.len() - 1 {
                         selection += 1;
 
-                        if window.get_max_y() - (selection as i32 - scroll as i32 + 3) < 5
+                        if terminal_size()?.1 - (selection as u16 - scroll as u16 + 3) < 5
                             && files.len() - selection >= 5
                         {
                             scroll += 1;
                         }
 
-                        file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                        file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
                     }
                 }
             }
-            Some(Input::Character('\n') | Input::KeyRight) => {
+            Some(Event::Key(Key::Char('\n')) | Event::Key(Key::Right)) => {
                 if files.len() > 0 {
                     if files[selection].file_type()?.is_dir() {
                         path = path.join(files[selection].file_name()).canonicalize()?;
@@ -94,18 +88,17 @@ fn main() -> anyhow::Result<()> {
                         scroll = 0;
 
                         file_navigator::draw_menu_bar(
-                            &window,
-                            1,
+                            &mut screen,
                             match path.to_str() {
                                 Some(str) => str,
                                 None => bail!("Path is not valid unicode."),
                             },
-                        );
-                        file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                        )?;
+                        file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
                     }
                 }
             }
-            Some(Input::KeyBackspace | Input::KeyLeft) => {
+            Some(Event::Key(Key::Backspace) | Event::Key(Key::Left)) => {
                 let old_path = path.clone();
                 path = path.join("..").canonicalize()?;
                 files = file_navigator::get_files(&path)?;
@@ -117,29 +110,27 @@ fn main() -> anyhow::Result<()> {
                 scroll = 0;
 
                 file_navigator::draw_menu_bar(
-                    &window,
-                    1,
+                    &mut screen,
                     match path.to_str() {
                         Some(str) => str,
                         None => bail!("Path is not valid unicode."),
                     },
-                );
-                file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+                )?;
+                file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
             }
-            Some(Input::KeyResize) => {
-                resize_term(0, 0);
-                window.mv(0, 0);
-                file_navigator::draw_menu_bar(
-                    &window,
-                    1,
-                    match path.to_str() {
-                        Some(str) => str,
-                        None => bail!("Path is not valid unicode."),
-                    },
-                );
-                file_navigator::draw_file_list(&window, &files, selection, scroll)?;
+            _ => {
+                if terminal_size()? != (w, h) {
+                    (w, h) = terminal_size()?;
+                    file_navigator::draw_menu_bar(
+                        &mut screen,
+                        match path.to_str() {
+                            Some(str) => str,
+                            None => bail!("Path is not valid unicode."),
+                        },
+                    )?;
+                    file_navigator::draw_file_list(&mut screen, &files, selection, scroll)?;
+                }
             }
-            _ => (),
         }
     }
 
