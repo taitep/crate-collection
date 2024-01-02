@@ -1,4 +1,4 @@
-use anyhow::{self, bail};
+use anyhow::{bail, Result};
 use file_navigator;
 use std::path::PathBuf;
 use std::{
@@ -13,7 +13,7 @@ use termion::{
     terminal_size,
 };
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() > 2 {
         bail!("Too many arguments.")
