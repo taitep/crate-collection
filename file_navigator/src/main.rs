@@ -1,3 +1,6 @@
+// Copyright (c) 2023-2024 taitep (https://github.com/taitep)
+// Licensed under the MIT license.
+
 use anyhow::{bail, Result};
 
 use std::{
