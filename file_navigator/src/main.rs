@@ -1,4 +1,4 @@
-// Copyright (c) 2023-2024 taitep (https://github.com/taitep)
+// Copyright (c) 2023-2024 taitep <taitep@taitep.se>
 // Licensed under the MIT license.
 
 use anyhow::{bail, Result};
