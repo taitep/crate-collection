@@ -3,10 +3,6 @@ Here is a list of rust crates i want to include, but have not made a demo of yet
 - clap
 - inquire
 - termion*
-- tracing
-- tokio
-- axum
-- serde
 - thiserror
 - anyhow*
 
